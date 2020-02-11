@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace AuthorsAPI
 {
@@ -27,10 +28,13 @@ namespace AuthorsAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options=>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
+            //Connects to the Db
+            services.AddDbContext<ApplicationDbContext>(o =>
+                o.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
 
-            services.AddControllers();
+            //Avoids reference looping
+            services.AddControllers().AddNewtonsoftJson(o =>
+                 o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

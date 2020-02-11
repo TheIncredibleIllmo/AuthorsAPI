@@ -23,13 +23,13 @@ namespace AuthorsAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Author>> GetAuthors()
         {
-            return _dbContext?.Authors?.ToList();
+            return _dbContext?.Authors?.Include(a => a.Books)?.ToList();
         }
 
         [HttpGet("{id}", Name = "GetAuthor")]
         public ActionResult<Author> GetAuthor(int id)
         {
-            var author = _dbContext?.Authors?.FirstOrDefault(a => a.Id == id);
+            var author = _dbContext?.Authors?.Include(a=>a.Books)?.FirstOrDefault(a => a.Id == id);
 
             if (author == null)
                 return NotFound();

@@ -16,5 +16,6 @@ namespace AuthorsAPI.Contexts
         }
 
         public DbSet<Author> Authors { get; set; }
+        public DbSet<Book> Books { get; set; }
     }
 }
