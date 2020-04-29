@@ -1,7 +1,13 @@
 ﻿using AuthorsAPI.Contexts;
 using AuthorsAPI.Entities;
+using AuthorsAPI.Helpers.Filters;
+using AuthorsAPI.Models.DTO;
+using AuthorsAPI.Services;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,25 +17,65 @@ namespace AuthorsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class AuthorsController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly ILogger<AuthorsController> _logger;
+        private readonly IMapper _autoMapper;
 
-        public AuthorsController(ApplicationDbContext dbContext)
+        public AuthorsController(ApplicationDbContext dbContext, ILogger<AuthorsController> logger, IMapper autoMapper)
         {
             _dbContext = dbContext;
+            _logger = logger;
+
+            _logger.LogDebug("Authors controller was initialized");
+            _autoMapper = autoMapper;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Author>> GetAuthors()
+        [ServiceFilter(typeof(CustomActionFilter))]
+        public async Task<ActionResult<IEnumerable<AuthorDTO>>> GetAuthorsAsync()
         {
-            return _dbContext?.Authors?.Include(a => a.Books)?.ToList();
+            try
+            {
+                var authors = await _dbContext?.Authors?.Include(a => a.Books)?.ToListAsync();
+                var authorsDTO = _autoMapper.Map<List<AuthorDTO>>(authors);
+                return authorsDTO;
+            }
+            catch (Exception ex)
+            {
+
+                var m = ex.Message;
+                return NotFound();
+            }
+            
         }
 
-        [HttpGet("{id}", Name = "GetAuthor")]
-        public ActionResult<Author> GetAuthor(int id)
+        [HttpGet("{id}", Name = nameof(GetAuthorByIdAsync))]
+       // [Authorize]
+        public async Task<ActionResult<AuthorDTO>> GetAuthorByIdAsync(int id)
         {
-            var author = _dbContext?.Authors?.Include(a=>a.Books)?.FirstOrDefault(a => a.Id == id);
+            var author = await _dbContext?.Authors?.Include(a => a.Books)?.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (author == null)
+            {
+                _logger?.LogWarning("Invalid Author");
+                return NotFound();
+            }
+
+            _logger?.LogInformation("Author found");
+
+            return _autoMapper.Map<AuthorDTO>(author);
+        }
+
+        //api/authors/GetAuthor/{id}/{name} (optional)
+        [HttpGet("GetAuthor/{id}/{name?}")]
+        public async Task<ActionResult<Author>> GetAuthorByIdOrNameAsync(int id, string name)
+        {
+            var author = string.IsNullOrEmpty(name) ? 
+                await _dbContext?.Authors?.Include(a => a.Books)?.FirstOrDefaultAsync(a => a.Id == id) :
+                await _dbContext?.Authors?.Include(a => a.Books)?.FirstOrDefaultAsync(a => a.Id == id && a.Name == name);
 
             if (author == null)
                 return NotFound();
@@ -38,9 +84,12 @@ namespace AuthorsAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateAuthor([FromBody]Author author)
+        public async Task<ActionResult> CreateAuthorAsync([FromBody]Author author)
         {
             //It is not necesary after NET Core 2.1, since the ApiController manages it.
+
+            TryValidateModel(author);
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -51,11 +100,13 @@ namespace AuthorsAPI.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return new CreatedAtRouteResult("GetAuthor", new { id = author.Id }, author);
+            _logger?.LogInformation("New author was created");
+
+            return new CreatedAtRouteResult(nameof(GetAuthorByIdAsync), new { id = author.Id }, author);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateAuthor(int id, [FromBody]Author author)
+        public async Task<ActionResult> UpdateAuthorAsync(int id, [FromBody]Author author)
         {
             if (author == null || id != author.Id)
                 return BadRequest();
@@ -67,12 +118,15 @@ namespace AuthorsAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> RemoveAuthor(int id)
+        public async Task<ActionResult> RemoveAuthorAsync(int id)
         {
             var author = await _dbContext.Authors.FindAsync(id);
 
             if (author == null)
+            {
+                _logger?.LogWarning("The author was not found");
                 return NotFound();
+            }
 
             _dbContext.Authors.Remove(author);
             await _dbContext.SaveChangesAsync();

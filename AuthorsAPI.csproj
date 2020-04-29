@@ -7,15 +7,33 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200211031400_books.cs" />
     <Compile Remove="Migrations\20200211031400_books.Designer.cs" />
+    <Compile Remove="Migrations\20200317023253_Author properties.cs" />
+    <Compile Remove="Migrations\20200317023253_Author properties.Designer.cs" />
+    <Compile Remove="Migrations\20200317023620_AuthorCard.cs" />
+    <Compile Remove="Migrations\20200317023620_AuthorCard.Designer.cs" />
+    <Compile Remove="Migrations\20200317024013_author updated.cs" />
+    <Compile Remove="Migrations\20200317024013_author updated.Designer.cs" />
+    <Compile Remove="Migrations\20200317024129_author updated.cs" />
+    <Compile Remove="Migrations\20200317024129_author updated.Designer.cs" />
+    <Compile Remove="Migrations\20200317025702_AuthorNameStringLength.cs" />
+    <Compile Remove="Migrations\20200317025702_AuthorNameStringLength.Designer.cs" />
+    <Compile Remove="Migrations\20200429003229_AuthorDOB.cs" />
+    <Compile Remove="Migrations\20200429003229_AuthorDOB.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 

@@ -1,4 +1,5 @@
 ﻿using AuthorsAPI.Entities;
+using AuthorsAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,5 +18,6 @@ namespace AuthorsAPI.Contexts
 
         public DbSet<Author> Authors { get; set; }
         public DbSet<Book> Books { get; set; }
+        public DbSet<HostedServiceLog> HostedServiceLogs{ get; set; }
     }
 }

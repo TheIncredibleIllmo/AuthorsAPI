@@ -4,15 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AuthorsAPI.Entities
+namespace AuthorsAPI.Models.DTO
 {
-    public class Book
+    public class BookDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        [Required]
-        [Range(1,int.MaxValue,ErrorMessage ="Author Id cannot be 0.")]
         public int AuthorId { get; set; }
-        public Author Author { get; set; }
     }
 }

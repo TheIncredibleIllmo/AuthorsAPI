@@ -23,13 +23,13 @@ namespace AuthorsAPI.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooksAsync()
         {
             return await _dbContext.Books?.Include(b => b.Author)?.ToListAsync();
         }
 
-        [HttpGet("{id}", Name = "GetBookById")]
-        public async Task<ActionResult<Book>> GetBookById(int id)
+        [HttpGet("{id}", Name = nameof(GetBookByIdAsync))]
+        public async Task<ActionResult<Book>> GetBookByIdAsync(int id)
         {
             var book = await _dbContext.Books?.Include(b=>b.Author)?.FirstOrDefaultAsync(b=>b.Id==id);
 
@@ -40,7 +40,7 @@ namespace AuthorsAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateBook([FromBody]Book book)            
+        public async Task<ActionResult> CreateBookAsync([FromBody]Book book)            
         {
             if (book == null)
                 return BadRequest();
@@ -48,11 +48,11 @@ namespace AuthorsAPI.Controllers
             await _dbContext.Books.AddAsync(book);
             await _dbContext.SaveChangesAsync();
 
-            return new CreatedAtRouteResult("GetBookById",new { id= book.Id,book});
+            return new CreatedAtRouteResult("GetBookById",new { id= book.Id }, book);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateBook(int id,[FromBody]Book book)
+        public async Task<ActionResult> UpdateBookAsync(int id,[FromBody]Book book)
         {
             if (book == null || id != book.Id)
                 return BadRequest();
@@ -64,7 +64,7 @@ namespace AuthorsAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> RemoveBook(int id)
+        public async Task<ActionResult> RemoveBookAsync(int id)
         {
             var book = await _dbContext.Books.FindAsync(id);
 
@@ -76,8 +76,5 @@ namespace AuthorsAPI.Controllers
 
             return Ok(book.Id);
         }
-
-
-
     }
 }
