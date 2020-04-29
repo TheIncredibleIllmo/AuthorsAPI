@@ -70,6 +70,8 @@ namespace AuthorsAPI
             services.AddAutoMapper(config =>
             {
                 config.CreateMap<Author, AuthorDTO>();
+                config.CreateMap<AuthorCreateDTO, Author>();
+
                 config.CreateMap<Book, BookDTO>();
             },
             typeof(Startup));

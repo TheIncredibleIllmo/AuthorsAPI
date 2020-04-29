@@ -11,19 +11,10 @@ namespace AuthorsAPI.Entities
     public class Author //: IValidatableObject
     {
         public int Id { get; set; }
-
-        [Required]
-        [CapitalWordAttribute]
-        [StringLength(10, ErrorMessage = "Name must contain at least {1} characters or less.")]
-        public string Name { get; set; }
-        
-        [Range(18,99)]
+        public string Name { get; set; }        
         public int Age { get; set; }
-
         public List<Book> Books{ get; set; }
-
         public DateTime DOB { get; set; }
-
 
         //[CreditCard]
         //public string CreditCard { get; set; }

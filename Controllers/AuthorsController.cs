@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AuthorsAPI.Controllers
@@ -84,17 +85,18 @@ namespace AuthorsAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateAuthorAsync([FromBody]Author author)
+        public async Task<ActionResult> CreateAuthorAsync([FromBody]AuthorCreateDTO authorCreate, CancellationToken ct = default)
         {
             //It is not necesary after NET Core 2.1, since the ApiController manages it.
-
-            TryValidateModel(author);
+            TryValidateModel(authorCreate);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (author == null)
+            if (authorCreate == null)
                 return BadRequest();
+
+            var author = _autoMapper.Map<Author>(authorCreate);
 
             await _dbContext.Authors.AddAsync(author);
 
@@ -102,7 +104,9 @@ namespace AuthorsAPI.Controllers
 
             _logger?.LogInformation("New author was created");
 
-            return new CreatedAtRouteResult(nameof(GetAuthorByIdAsync), new { id = author.Id }, author);
+            //Returns a 202 (Created), the route name and the response values.
+            var authorDTO = _autoMapper.Map<AuthorDTO>(author);
+            return new CreatedAtRouteResult(nameof(GetAuthorByIdAsync), new { id = author.Id }, authorDTO);
         }
 
         [HttpPut("{id}")]
