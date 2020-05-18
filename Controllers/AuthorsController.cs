@@ -5,6 +5,7 @@ using AuthorsAPI.Models.DTO;
 using AuthorsAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -110,16 +111,50 @@ namespace AuthorsAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateAuthorAsync(int id, [FromBody]Author author)
+        public async Task<ActionResult> UpdateAuthorAsync(int id, [FromBody]AuthorCreateDTO authorUpdate)
         {
-            if (author == null || id != author.Id)
-                return BadRequest();
+            var author = _autoMapper.Map<Author>(authorUpdate);
+            author.Id = id;
+            //if (author == null || id != author.Id)
+            //    return BadRequest();
 
             _dbContext.Entry(author).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
 
-            return Ok(author.Id);
+            //return Ok(author.Id);
+            return NoContent();
         }
+
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchAuthorAsync(int id, [FromBody] JsonPatchDocument<AuthorCreateDTO> patchDocument)
+        {
+            if (patchDocument == null)
+                return BadRequest();
+
+            var dbAuthor = await _dbContext.Authors.FirstOrDefaultAsync(a=>a.Id == id);
+
+            if (dbAuthor == null)
+                return NotFound();
+
+            var authorDTO = _autoMapper?.Map<AuthorCreateDTO>(dbAuthor);            
+            
+            patchDocument.ApplyTo(authorDTO, ModelState);
+
+            _autoMapper.Map(authorDTO, dbAuthor);
+
+            var isValid = TryValidateModel(dbAuthor);
+            if (!isValid)
+                return BadRequest(ModelState);
+
+
+
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+
+        }
+
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> RemoveAuthorAsync(int id)
