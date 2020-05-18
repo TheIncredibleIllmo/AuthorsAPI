@@ -159,18 +159,18 @@ namespace AuthorsAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> RemoveAuthorAsync(int id)
         {
-            var author = await _dbContext.Authors.FindAsync(id);
+            var authorId = await _dbContext.Authors.Select(a=>a.Id).FirstOrDefaultAsync(i=>i == id);
 
-            if (author == null)
+            if (authorId == default(int))
             {
                 _logger?.LogWarning("The author was not found");
                 return NotFound();
             }
 
-            _dbContext.Authors.Remove(author);
+            _dbContext.Authors.Remove(new Author { Id = authorId});
             await _dbContext.SaveChangesAsync();
 
-            return Ok(author.Id);
+            return NoContent();
         }
     }
 }

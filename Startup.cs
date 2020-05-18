@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthorsAPI.Contexts;
+using AuthorsAPI.Data;
 using AuthorsAPI.Entities;
 using AuthorsAPI.Helpers.Filters;
 using AuthorsAPI.Models.DTO;
@@ -47,7 +48,7 @@ namespace AuthorsAPI
             //Enables Caching
             //services.AddResponseCaching();
 
-
+            services.AddScoped<ValuesRepository>();
 
             services.AddScoped<CustomActionFilter>();
             services.AddTransient<Microsoft.Extensions.Hosting.IHostedService, WriteToFileHostedService>();
