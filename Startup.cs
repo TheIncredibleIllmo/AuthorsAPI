@@ -48,7 +48,7 @@ namespace AuthorsAPI
             //Enables Caching
             //services.AddResponseCaching();
 
-            services.AddScoped<ValuesRepository>();
+            services.AddSingleton<IValuesRepository,ValuesRepository>();
 
             services.AddScoped<CustomActionFilter>();
             services.AddTransient<Microsoft.Extensions.Hosting.IHostedService, WriteToFileHostedService>();

@@ -10,7 +10,12 @@ using System.Threading.Tasks;
 
 namespace AuthorsAPI.Data
 {
-    public class ValuesRepository
+    public interface IValuesRepository
+    {
+        Task<List<Value>> GetAll();
+    }
+
+    public class ValuesRepository : IValuesRepository
     {
         private readonly string _connectionString;
         public ValuesRepository(IConfiguration configuration)

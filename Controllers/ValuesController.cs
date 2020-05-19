@@ -14,9 +14,9 @@ namespace AuthorsAPI.Controllers
     [ApiController]
     public class ValuesController
     {
-        private readonly ValuesRepository _repo;
+        private readonly IValuesRepository _repo;
 
-        public ValuesController(ValuesRepository repo)
+        public ValuesController(IValuesRepository repo)
         {
             _repo = repo;
         }
